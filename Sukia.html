@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sukia — Asistente Estudiantil con IA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0a0a0f;
+      --ink-2: #1c1c28;
+      --chalk: #f5f3ef;
+      --chalk-2: #ede9e3;
+      --mid: #8a8578;
+      --light: #c4bfb5;
+      --sky: #0f7aff;
+      --sky-dim: #cce0ff;
+      --sky-pale: #edf4ff;
+      --rose: #e8402a;
+      --gold: #c9a84c;
+      --border: rgba(0, 0, 0, 0.08);
+      --r: 4px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--chalk);
+      color: var(--ink);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── CURSOR ── */
+    body {
+      cursor: none;
+    }
+
+    #cursor {
+      width: 10px;
+      height: 10px;
+      background: var(--sky);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      top: 0;
+      left: 0;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+      mix-blend-mode: multiply;
+    }
+
+    #cursor.grow {
+      width: 48px;
+      height: 48px;
+      opacity: 0.4;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 4rem;
+      background: rgba(245, 243, 239, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      color: var(--ink);
+    }
+
+    .nav-logo span {
+      color: var(--sky);
+    }
+
+    .nav-pill {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-top: 5rem;
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6rem 4rem 6rem 4rem;
+      position: relative;
+    }
+
+    .hero-right {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-right img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.7) contrast(1.05);
+    }
+
+    .hero-right::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, var(--chalk) 0%, transparent 30%),
+        linear-gradient(to top, var(--chalk) 0%, transparent 25%);
+    }
+
+    .hero-eyebrow {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sky);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 2px;
+      background: var(--sky);
+    }
+
+    .hero-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3.5rem, 6vw, 6rem);
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--sky);
+    }
+
+    .hero-desc {
+      font-size: 1.1rem;
+      line-height: 1.75;
+      color: var(--mid);
+      max-width: 480px;
+      margin-bottom: 3rem;
+      font-weight: 300;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--ink);
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 100px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-decoration: none;
+      transition: all 0.3s;
+      width: fit-content;
+    }
+
+    .hero-cta:hover {
+      background: var(--sky);
+      transform: translateY(-2px);
+    }
+
+    .hero-cta svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .hero-stat-row {
+      display: flex;
+      gap: 3rem;
+      margin-top: 4rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .hero-stat h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.8rem;
+      letter-spacing: 0.05em;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .hero-stat p {
+      font-size: 0.82rem;
+      color: var(--mid);
+      margin-top: 0.3rem;
+      max-width: 120px;
+      line-height: 1.4;
+    }
+
+    /* ── SECTION BASE ── */
+    section {
+      padding: 8rem 4rem;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--sky);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--sky);
+    }
+
+    .section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.4rem, 4vw, 4rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-body {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--mid);
+      font-weight: 300;
+    }
+
+    /* ── PROBLEM SECTION ── */
+    .problem-section {
+      background: var(--ink-2);
+      color: white;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .problem-section .section-label {
+      color: #5ba3ff;
+    }
+
+    .problem-section .section-label::before {
+      background: #5ba3ff;
+    }
+
+    .problem-section .section-title {
+      color: white;
+    }
+
+    .problem-section .section-body {
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .problem-img-wrap {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .problem-img-wrap img {
+      width: 100%;
+      display: block;
+      filter: saturate(0.5) brightness(0.75);
+    }
+
+    .problem-img-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+    }
+
+    .problem-img-overlay p {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 0.25rem;
+    }
+
+    .problem-img-overlay strong {
+      color: white;
+      font-size: 1.5rem;
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.1em;
+    }
+
+    .stat-bars {
+      margin-top: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .stat-bar-item {}
+
+    .stat-bar-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+    }
+
+    .stat-bar-top span {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .stat-bar-top strong {
+      font-size: 0.9rem;
+      color: white;
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-bar-track {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .stat-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, #0f7aff, #5ba3ff);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .stat-bar-fill.active {
+      transform: scaleX(1);
+    }
+
+    /* ── SOLUTION SECTION ── */
+    .solution-section {
+      background: var(--chalk-2);
+    }
+
+    .solution-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    /* ── CHAT WINDOW ── */
+    .chat-window {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--border);
+    }
+
+    .chat-topbar {
+      background: var(--ink);
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .chat-ava {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0f7aff, #a78bfa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      color: white;
+      letter-spacing: 1px;
+    }
+
+    .chat-topbar h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .chat-topbar p {
+      font-size: 0.75rem;
+      color: #22c55e;
+      font-weight: 500;
+    }
+
+    .chat-body {
+      background: #f9f8f6;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-height: 280px;
+    }
+
+    .msg {
+      padding: 0.9rem 1.2rem;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      max-width: 88%;
+      line-height: 1.55;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .msg.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .msg.bot {
+      background: white;
+      border: 1px solid var(--border);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .msg.user {
+      background: var(--ink);
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* ── FEATURES ── */
+    .features-section {
+      background: white;
+    }
+
+    .features-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .features-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-bottom: 6rem;
+      align-items: end;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--chalk-2);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .feat-card {
+      background: white;
+      padding: 2.5rem;
+      transition: background 0.3s;
+    }
+
+    .feat-card:hover {
+      background: var(--sky-pale);
+    }
+
+    .feat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      color: var(--light);
+      line-height: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    .feat-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .feat-card p {
+      font-size: 0.9rem;
+      color: var(--mid);
+      line-height: 1.6;
+    }
+
+    /* ── PHOTO STRIP ── */
+    .photo-strip {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      height: 480px;
+      gap: 4px;
+      overflow: hidden;
+    }
+
+    .photo-strip-item {
+      overflow: hidden;
+      position: relative;
+    }
+
+    .photo-strip-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: saturate(0.65);
+      transition: transform 0.6s ease, filter 0.4s;
+    }
+
+    .photo-strip-item:hover img {
+      transform: scale(1.04);
+      filter: saturate(1);
+    }
+
+    .photo-cap {
+      position: absolute;
+      bottom: 1.2rem;
+      left: 1.2rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: white;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 0.3rem 0.75rem;
+      border-radius: 100px;
+      backdrop-filter: blur(8px);
+    }
+
+    /* ── TECH SECTION ── */
+    .tech-section {
+      background: var(--chalk);
+    }
+
+    .tech-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .tech-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-bottom: 5rem;
+      align-items: end;
+    }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .tech-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+      background: white;
+      transition: all 0.3s;
+    }
+
+    .tech-card:hover {
+      border-color: var(--sky);
+      box-shadow: 0 8px 30px rgba(15, 122, 255, 0.1);
+    }
+
+    .tech-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: var(--sky-dim);
+      color: var(--sky);
+      padding: 0.25rem 0.75rem;
+      border-radius: 100px;
+      margin-bottom: 1.2rem;
+    }
+
+    .tech-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .tech-card p {
+      font-size: 0.88rem;
+      color: var(--mid);
+      line-height: 1.6;
+    }
+
+    /* ── TEAM SECTION ── */
+    .team-section {
+      background: var(--ink-2);
+      color: white;
+      padding: 8rem 4rem;
+    }
+
+    .team-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .team-header {
+      max-width: 600px;
+      margin-bottom: 5rem;
+    }
+
+    .team-section .section-label {
+      color: #5ba3ff;
+    }
+
+    .team-section .section-label::before {
+      background: #5ba3ff;
+    }
+
+    .team-section .section-title {
+      color: white;
+    }
+
+    .team-section .section-body {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1px;
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .team-card {
+      background: var(--ink-2);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      transition: background 0.3s;
+    }
+
+    .team-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .team-ava {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(15, 122, 255, 0.3), rgba(167, 139, 250, 0.3));
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      color: #5ba3ff;
+      margin: 0 auto 1.2rem;
+      letter-spacing: 1px;
+    }
+
+    .team-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 0.3rem;
+    }
+
+    .team-role {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.35);
+      line-height: 1.4;
+    }
+
+    /* ── SURVEY CALLOUT ── */
+    .callout-section {
+      background: var(--sky);
+      padding: 6rem 4rem;
+    }
+
+    .callout-inner {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 4rem;
+    }
+
+    .callout-inner h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      color: white;
+      line-height: 1.1;
+    }
+
+    .callout-inner h2 em {
+      font-style: italic;
+      opacity: 0.7;
+    }
+
+    .callout-stats {
+      display: flex;
+      gap: 3rem;
+    }
+
+    .c-stat h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      color: white;
+      line-height: 1;
+      letter-spacing: 0.05em;
+    }
+
+    .c-stat p {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.7);
+      max-width: 100px;
+      line-height: 1.4;
+      margin-top: 0.3rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      padding: 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      color: white;
+      letter-spacing: 3px;
+    }
+
+    .footer-logo span {
+      color: var(--sky);
+    }
+
+    footer p {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.35);
+      line-height: 1.7;
+      text-align: right;
+    }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: all 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 {
+      transition-delay: 0.1s;
+    }
+
+    .reveal-delay-2 {
+      transition-delay: 0.2s;
+    }
+
+    .reveal-delay-3 {
+      transition-delay: 0.3s;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      nav {
+        padding: 1rem 2rem;
+      }
+
+      section {
+        padding: 5rem 2rem;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-right {
+        height: 50vw;
+      }
+
+      .hero-left {
+        padding: 7rem 2rem 3rem;
+      }
+
+      .problem-grid,
+      .solution-grid,
+      .features-header,
+      .tech-header {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+      }
+
+      .photo-strip {
+        grid-template-columns: 1fr 1fr;
+        height: auto;
+      }
+
+      .photo-strip-item:last-child {
+        display: none;
+      }
+
+      .photo-strip-item {
+        height: 240px;
+      }
+
+      .tech-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .team-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .callout-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .callout-stats {
+        flex-wrap: wrap;
+        gap: 2rem;
+      }
+
+      footer {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      footer p {
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 640px) {
+      nav {
+        padding: 1rem 1.25rem;
+      }
+
+      .nav-pill {
+        display: none;
+      }
+
+      section {
+        padding: 4rem 1.25rem;
+      }
+
+      .hero-left {
+        padding: 6rem 1.25rem 3rem;
+      }
+
+      .hero-title {
+        font-size: clamp(2.5rem, 10vw, 3.5rem);
+      }
+
+      .hero-stat-row {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .hero-stat h3 {
+        font-size: 2.2rem;
+      }
+
+      .photo-strip {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .photo-strip-item {
+        height: 200px;
+      }
+
+      .photo-strip-item:last-child {
+        display: block;
+      }
+
+      .tech-grid,
+      .team-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .feat-card,
+      .tech-card {
+        padding: 1.5rem;
+      }
+
+      .callout-section {
+        padding: 4rem 1.25rem;
+      }
+
+      .callout-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .c-stat h3 {
+        font-size: 2.5rem;
+      }
+
+      .chat-window {
+        border-radius: 12px;
+      }
+
+      .chat-body {
+        padding: 1rem;
+      }
+
+      .msg {
+        max-width: 95%;
+        font-size: 0.85rem;
+        padding: 0.8rem 1rem;
+      }
+
+      .problem-img-wrap {
+        padding: 2rem 1rem !important;
+        min-height: 380px !important;
+      }
+
+      footer {
+        padding: 3rem 1.25rem;
+      }
+
+      .footer-logo {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="cursor"></div>
+
+  <nav>
+    <div class="nav-logo">SUKIA<span>.</span></div>
+    <div class="nav-pill">InnovaTecNM 2026 · Folio 66389-17</div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">Tecnológico de Morelia</div>
+      <h1 class="hero-title">
+        Tu campus,<br>
+        <em>al instante.</em>
+      </h1>
+      <p class="hero-desc">
+        Sukia es un asistente virtual con IA local que conoce cada edificio, trámite y evento de tu escuela. Sin filas,
+        sin desinformación, sin instalar nada.
+      </p>
+      <a class="hero-cta" href="#solucion">
+        Ver el proyecto
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7" />
+        </svg>
+      </a>
+      <div class="hero-stat-row">
+        <div class="hero-stat">
+          <h3>76</h3>
+          <p>estudiantes encuestados en el ITM</p>
+        </div>
+        <div class="hero-stat">
+          <h3>96%</h3>
+          <p>quiere un asistente virtual en campus</p>
+        </div>
+        <div class="hero-stat">
+          <h3>100%</h3>
+          <p>busca info de trámites por vías informales</p>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <img src="WhatsApp Image 2026-05-08 at 9.42.28 PM.jpeg" alt="Campus Instituto Tecnológico de Morelia">
+    </div>
+  </header>
+
+  <!-- PROBLEM -->
+  <section class="problem-section" id="problema">
+    <div class="problem-grid">
+      <div class="reveal">
+        <div class="section-label">El Problema</div>
+        <h2 class="section-title" style="color:white;">La información dispersa cuesta tiempo real</h2>
+        <p class="section-body">
+          La comunidad estudiantil del ITM resuelve sus dudas institucionales a través de grupos de WhatsApp, preguntas
+          a compañeros o desplazamientos físicos a ventanillas. Esto genera pérdida de tiempo productivo, estrés y
+          acceso a información desactualizada o incorrecta.
+        </p>
+        <div class="stat-bars">
+          <div class="stat-bar-item">
+            <div class="stat-bar-top"><span>Tardanza buscando un edificio desconocido</span><strong>59%</strong></div>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill" style="--w:0.59" data-fill="0.59"></div>
+            </div>
+          </div>
+          <div class="stat-bar-item">
+            <div class="stat-bar-top"><span>Rechazados en ventanilla por docs incompletos</span><strong>42%</strong>
+            </div>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill" data-fill="0.42"></div>
+            </div>
+          </div>
+          <div class="stat-bar-item">
+            <div class="stat-bar-top"><span>Pierden eventos por falta de notificaciones</span><strong>68%</strong></div>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill" data-fill="0.68"></div>
+            </div>
+          </div>
+          <div class="stat-bar-item">
+            <div class="stat-bar-top"><span>Herramientas actuales: "buenas pero mejorables"</span><strong>84%</strong>
+            </div>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill" data-fill="0.84"></div>
+            </div>
+          </div>
+          <div class="stat-bar-item">
+            <div class="stat-bar-top"><span>Busca requisitos de trámites de forma informal</span><strong>100%</strong>
+            </div>
+            <div class="stat-bar-track">
+              <div class="stat-bar-fill" data-fill="1.0"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="problem-img-wrap"
+          style="background: linear-gradient(135deg, #0d1117 0%, #0f1e35 50%, #0a1628 100%); border-radius:20px; padding: 3rem 2rem; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height: 460px; position:relative; overflow:hidden; border: 1px solid rgba(255,255,255,0.07);">
+          <!-- decorative glow -->
+          <div
+            style="position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(15,122,255,0.18) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-55%);pointer-events:none;">
+          </div>
+          <!-- avatar -->
+          <img src="SUKIA AI (4).png" alt="Suki - Avatar IA de Sukia"
+            style="width:180px;height:180px;border-radius:50%;object-fit:cover;border:3px solid rgba(15,122,255,0.4);box-shadow:0 0 40px rgba(15,122,255,0.3);position:relative;z-index:1;">
+          <!-- label -->
+          <div style="margin-top:2rem;text-align:center;position:relative;z-index:1;">
+            <p
+              style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:3px;color:white;margin-bottom:0.3rem;">
+              SUKI</p>
+            <p style="font-size:0.78rem;color:rgba(255,255,255,0.45);letter-spacing:0.12em;text-transform:uppercase;">
+              Avatar 3D · Voz Neural es-MX</p>
+          </div>
+          <!-- stat chips -->
+          <div
+            style="display:flex;gap:1rem;margin-top:2rem;position:relative;z-index:1;flex-wrap:wrap;justify-content:center;">
+            <div
+              style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:100px;padding:0.4rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.6);">
+              50% prefiere el avatar</div>
+            <div
+              style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:100px;padding:0.4rem 1rem;font-size:0.78rem;color:rgba(255,255,255,0.6);">
+              64% quiere voz</div>
+          </div>
+          <p
+            style="margin-top:1.5rem;font-size:0.75rem;color:rgba(255,255,255,0.25);text-align:center;position:relative;z-index:1;">
+            Encuesta de validación · 76 estudiantes · ITM mayo 2026</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PHOTO STRIP -->
+  <div class="photo-strip">
+    <div class="photo-strip-item">
+      <img src="WhatsApp Image 2026-05-08 at 9.40.25 PM.jpeg" alt="Edificios del campus">
+      <span class="photo-cap">Instalaciones</span>
+    </div>
+    <div class="photo-strip-item">
+      <img src="Gemini_Generated_Image_g1e3j0g1e3j0g1e3.png" alt="Áreas comunes y gradas">
+      <span class="photo-cap">Áreas Comunes</span>
+    </div>
+    <div class="photo-strip-item">
+      <img src="WhatsApp Image 2026-05-08 at 9.42.28 PM.jpeg" alt="Edificio K">
+      <span class="photo-cap">Edificio K</span>
+    </div>
+  </div>
+
+  <!-- SOLUTION -->
+  <section class="solution-section" id="solucion">
+    <div class="solution-grid">
+      <div class="reveal">
+        <div class="section-label">La Solución</div>
+        <h2 class="section-title">Conoce a Sukia</h2>
+        <p class="section-body">
+          Un asistente que comprende lenguaje natural gracias a Llama 3 y búsqueda vectorial semántica. No necesitas
+          usar palabras exactas — Sukia entiende el contexto, los sinónimos y las variaciones ortográficas. Accesible
+          desde cualquier dispositivo, sin instalación.
+        </p>
+        <p class="section-body" style="margin-top: 1rem;">
+          Además, cuenta con un avatar 3D animado (Suki) con síntesis de voz en español (es-MX-Dalia Neural), ofreciendo
+          una experiencia humanizada. El 50% de los usuarios prefiere esta interacción frente al chat de texto plano.
+        </p>
+      </div>
+      <div class="reveal reveal-delay-1">
+        <div class="chat-window">
+          <div class="chat-topbar">
+            <div class="chat-ava">SK</div>
+            <div>
+              <h4>Sukia Assistant</h4>
+              <p>En línea — IA local activa</p>
+            </div>
+          </div>
+          <div class="chat-body" id="chat-container"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features-section">
+    <div class="features-inner">
+      <div class="features-header reveal">
+        <div>
+          <div class="section-label">Capacidades</div>
+          <h2 class="section-title">Lo que Sukia sabe hacer</h2>
+        </div>
+        <p class="section-body">
+          Diseñado para resolver los tres problemas principales del estudiante del ITM: orientación espacial,
+          información de trámites y difusión de eventos. Todo con privacidad por diseño.
+        </p>
+      </div>
+      <div class="features-grid">
+        <div class="feat-card reveal">
+          <div class="feat-num">01</div>
+          <h4>Orientación en campus</h4>
+          <p>Localiza edificios, aulas y oficinas con instrucciones precisas y en lenguaje natural. El 66% de
+            estudiantes tarda más de 5 minutos sin ayuda.</p>
+        </div>
+        <div class="feat-card reveal reveal-delay-1">
+          <div class="feat-num">02</div>
+          <h4>Guía de trámites</h4>
+          <p>Requisitos documentales completos para constancias, bajas, reinscripciones y más. Ningún alumno regresa a
+            ventanilla por papeles faltantes.</p>
+        </div>
+        <div class="feat-card reveal reveal-delay-2">
+          <div class="feat-num">03</div>
+          <h4>Eventos académicos</h4>
+          <p>El 68% pierde eventos por falta de notificaciones. Sukia centraliza la agenda del campus y responde
+            consultas sobre fechas y actividades.</p>
+        </div>
+        <div class="feat-card reveal">
+          <div class="feat-num">04</div>
+          <h4>Búsqueda semántica vectorial</h4>
+          <p>Comprende significado, no solo palabras exactas. Acepta sinónimos, errores ortográficos y preguntas
+            ambiguas mediante embeddings de Ollama + Vectra.</p>
+        </div>
+        <div class="feat-card reveal reveal-delay-1">
+          <div class="feat-num">05</div>
+          <h4>Avatar 3D con voz</h4>
+          <p>Modelo VRM animado con síntesis de voz es-MX-Dalia Neural. El 64% de los usuarios desea interacción por
+            voz. La experiencia se siente humana.</p>
+        </div>
+        <div class="feat-card reveal reveal-delay-2">
+          <div class="feat-num">06</div>
+          <h4>Privacidad por diseño</h4>
+          <p>El modelo de IA corre localmente. Sin datos enviados a la nube, sin tracking. Cumple LFPDPPP y
+            NOM-151-SCFI-2016.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SURVEY CALLOUT -->
+  <div class="callout-section">
+    <div class="callout-inner">
+      <h2>
+        El <em>96%</em> de los estudiantes<br>
+        quiere que Sukia exista.
+      </h2>
+      <div class="callout-stats">
+        <div class="c-stat">
+          <h3>92%</h3>
+          <p>lo usaría para notificaciones y guía paso a paso</p>
+        </div>
+        <div class="c-stat">
+          <h3>78%</h3>
+          <p>ya usa IA de forma regular o constante</p>
+        </div>
+        <div class="c-stat">
+          <h3>64%</h3>
+          <p>lo usaría más de 3 veces a la semana</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TECH -->
+  <section class="tech-section">
+    <div class="tech-inner">
+      <div class="tech-header reveal">
+        <div>
+          <div class="section-label">Arquitectura</div>
+          <h2 class="section-title">Stack tecnológico</h2>
+        </div>
+        <p class="section-body">
+          Arquitectura cliente-servidor de tres capas. Diseñada para escalar a los 266 planteles del TecNM con más de
+          600,000 estudiantes, sin costos de infraestructura en la nube.
+        </p>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-card reveal">
+          <div class="tech-tag">Frontend</div>
+          <h4>HTML5 + JS + Three.js</h4>
+          <p>Aplicación web estática con integración de modelos VRM 3D. Cero instalación para el usuario final.</p>
+        </div>
+        <div class="tech-card reveal reveal-delay-1">
+          <div class="tech-tag">Backend</div>
+          <h4>Node.js + Express</h4>
+          <p>Servidor orquestador con cola de concurrencia, rate limiting y proxy hacia Llama 3. Soporta acceso
+            simultáneo de múltiples usuarios.</p>
+        </div>
+        <div class="tech-card reveal reveal-delay-2">
+          <div class="tech-tag">Base de Datos</div>
+          <h4>MongoDB + Vectra</h4>
+          <p>Búsqueda híbrida: indexación regex insensible a acentos + embeddings vectoriales semánticos generados por
+            Ollama.</p>
+        </div>
+        <div class="tech-card reveal">
+          <div class="tech-tag">IA</div>
+          <h4>Llama 3 vía Ollama</h4>
+          <p>Inferencia local en hardware con mínimo 8 GB RAM. Sin dependencias externas. Caché de búsquedas frecuentes
+            con TTL de 5 minutos.</p>
+        </div>
+        <div class="tech-card reveal reveal-delay-1">
+          <div class="tech-tag">Voz</div>
+          <h4>Edge-TTS es-MX-Dalia</h4>
+          <p>Síntesis de voz neuronal en español mexicano. Respuestas leídas en voz alta con naturalidad y fluidez
+            nativa.</p>
+        </div>
+        <div class="tech-card reveal reveal-delay-2">
+          <div class="tech-tag">Infraestructura</div>
+          <h4>Cloudflare Tunnels</h4>
+          <p>Exposición pública de servidores locales mediante HTTP/2. Sin costos de nube, con seguridad de nivel
+            empresarial.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="team-section">
+    <div class="team-inner">
+      <div class="team-header">
+        <div class="section-label" style="color:#5ba3ff; margin-bottom:1.5rem;">
+          <span style="display:block;width:24px;height:2px;background:#5ba3ff;"></span>
+          Equipo
+        </div>
+        <h2 class="section-title"
+          style="color:white; font-family:'DM Serif Display',serif; font-size:clamp(2.4rem,4vw,4rem); margin-bottom:1rem;">
+          Quiénes lo construyeron
+        </h2>
+        <p class="section-body" style="color:rgba(255,255,255,0.5);">
+          Equipo multidisciplinario del Instituto Tecnológico de Morelia. Cinco integrantes, una sola misión: que ningún
+          estudiante pierda tiempo buscando información que debería estar a un mensaje de distancia.
+        </p>
+      </div>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-ava">JA</div>
+          <div class="team-name">Jose Antonio H.</div>
+          <div class="team-role">Ing. Sistemas Computacionales · 7mo</div>
+        </div>
+        <div class="team-card">
+          <div class="team-ava">MA</div>
+          <div class="team-name">Marco Antonio V.</div>
+          <div class="team-role">Ing. Sistemas Computacionales · 7mo</div>
+        </div>
+        <div class="team-card">
+          <div class="team-ava">LA</div>
+          <div class="team-name">Luis Alberto C.</div>
+          <div class="team-role">Ing. Sistemas Computacionales · 7mo</div>
+        </div>
+        <div class="team-card">
+          <div class="team-ava">NC</div>
+          <div class="team-name">Naty C.C</div>
+          <div class="team-role">Ing. Sistemas Computacionales · 7mo</div>
+        </div>
+        <div class="team-card">
+          <div class="team-ava">CV</div>
+          <div class="team-name">Cassandra V. J.</div>
+          <div class="team-role">Lic. en Administración · 9no</div>
+        </div>
+      </div>
+      <p style="margin-top:2rem; font-size:0.82rem; color:rgba(255,255,255,0.25);">
+        Asesor: José Manuel Cuin Jacuinde &nbsp;·&nbsp; jose.cj@morelia.tecnm.mx
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-logo">SUKIA<span>.</span></div>
+    <p>
+      Folio 66389-17 &nbsp;·&nbsp; InnovaTecNM 2026 &nbsp;·&nbsp; Instituto Tecnológico de Morelia<br>
+      Categoría: Bienes de Consumo Final &nbsp;·&nbsp; Soluciones de Software<br>
+      &copy; 2026 Equipo Sukia · Todos los derechos reservados
+    </p>
+  </footer>
+
+  <script>
+    // Cursor
+    const cur = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cur.style.left = e.clientX + 'px';
+      cur.style.top = e.clientY + 'px';
+    });
+    document.querySelectorAll('a, button, .feat-card, .tech-card, .team-card').forEach(el => {
+      el.addEventListener('mouseenter', () => cur.classList.add('grow'));
+      el.addEventListener('mouseleave', () => cur.classList.remove('grow'));
+    });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Stat bars
+    const barObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.stat-bar-fill').forEach(fill => {
+            const val = fill.dataset.fill;
+            fill.style.width = (parseFloat(val) * 100) + '%';
+            fill.classList.add('active');
+          });
+          barObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('.stat-bars').forEach(el => barObserver.observe(el));
+
+    // Chat animation
+    const chatContainer = document.getElementById('chat-container');
+    const script = [
+      { type: 'user', text: 'hola' },
+      { type: 'bot', text: 'hola soy sukia en que puedo ayudarte ?' },
+      { type: 'user', text: 'donde esta el edificio k' },
+      { type: 'bot', text: 'el edificio k es el edificio de los estudiantes de sistemas se encuentra a un lado de la pony plaza y atras de la cafeteria' }
+    ];
+    let delay = 600;
+    script.forEach(msg => {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = `msg ${msg.type}`;
+        el.textContent = msg.text;
+        chatContainer.appendChild(el);
+        void el.offsetWidth;
+        el.classList.add('show');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }, delay);
+      delay += msg.type === 'user' ? 1500 : 3200;
+    });
+  </script>
+</body>
+
+</html>
