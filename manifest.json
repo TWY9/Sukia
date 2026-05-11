@@ -1,0 +1,23 @@
+{
+    "name": "Sukia IA",
+    "short_name": "Sukia",
+    "description": "Asistente estudiantil del Tecnológico de Morelia",
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "#4A90E2",
+    "background_color": "#1a1a2e",
+    "icons": [
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

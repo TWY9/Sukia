@@ -1,0 +1,1174 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sukia cómo funciona</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      /* Paleta de index.html */
+      --ink: #0a0a0f;
+      --ink-2: #1c1c28;
+      --chalk: #f5f3ef;
+      --chalk-2: #ede9e3;
+      --mid: #8a8578;
+      --light: #c4bfb5;
+      --sky: #0f7aff;
+      --sky-dim: #cce0ff;
+      --sky-pale: #edf4ff;
+      --rose: #e8402a;
+      --gold: #c9a84c;
+
+      /* Mapeo para el simulador */
+      --bg: var(--chalk);
+      --surface: #ffffff;
+      --surface2: var(--chalk-2);
+      --border: rgba(0, 0, 0, 0.08);
+      --border2: rgba(0, 0, 0, 0.12);
+
+      --suki: var(--sky);
+      --cache: #10b981;
+      --mongo: var(--gold);
+      --vectra: #8b5cf6;
+      --llm: var(--rose);
+
+      --text: var(--ink);
+      --muted: var(--mid);
+      --muted2: var(--mid);
+      --sans: 'DM Sans', sans-serif;
+      --mono: 'Space Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(15, 122, 255, 0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    /* HEADER */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(15, 122, 255, 0.1);
+      border: 0.5px solid rgba(15, 122, 255, 0.3);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--suki);
+      letter-spacing: 0.08em;
+      margin-bottom: 1.25rem;
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--suki);
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .3;
+        transform: scale(.6)
+      }
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 600;
+      letter-spacing: -.03em;
+      line-height: 1.1;
+      margin-bottom: .6rem;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--suki);
+    }
+
+    .sub {
+      font-size: 14px;
+      color: var(--muted2);
+      font-weight: 300;
+      max-width: 440px;
+      line-height: 1.6;
+      margin-bottom: 3rem;
+    }
+
+    /* SIMULATOR */
+    .sim-wrap {
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .sim-input-area {
+      padding: 1.5rem 1.5rem 1.25rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .sim-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: .08em;
+      margin-bottom: .6rem;
+    }
+
+    .sim-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .sim-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 0.5px solid var(--border2);
+      border-radius: 12px;
+      padding: 11px 16px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .sim-input:focus {
+      border-color: rgba(15, 122, 255, .5);
+    }
+
+    .sim-btn {
+      background: rgba(15, 122, 255, .15);
+      border: 0.5px solid rgba(15, 122, 255, .35);
+      color: var(--suki);
+      border-radius: 12px;
+      padding: 11px 20px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      white-space: nowrap;
+    }
+
+    .sim-btn:hover {
+      background: rgba(15, 122, 255, .25);
+    }
+
+    .sim-btn:active {
+      transform: scale(.97);
+    }
+
+    .sim-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: .75rem;
+    }
+
+    .sug {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      border: 0.5px solid var(--border2);
+      background: var(--surface2);
+      color: var(--muted2);
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+
+    .sug:hover {
+      border-color: rgba(15, 122, 255, .4);
+      color: var(--suki);
+    }
+
+    /* STAGE TRACK */
+    .stage-track {
+      padding: 1.5rem 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stage-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .stage {
+      flex: 1;
+      border-radius: 14px;
+      border: 0.5px solid var(--border2);
+      background: var(--surface2);
+      padding: 14px;
+      transition: border-color .3s, box-shadow .3s, background .3s;
+      position: relative;
+      overflow: hidden;
+      min-height: 80px;
+    }
+
+    .stage.full {
+      flex: 1 1 100%;
+    }
+
+    .stage-icon {
+      font-size: 22px;
+      margin-bottom: 6px;
+      display: block;
+      line-height: 1;
+    }
+
+    .stage-name {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .stage-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .stage.active-suki {
+      border-color: rgba(15, 122, 255, .5);
+      box-shadow: 0 0 24px rgba(15, 122, 255, .14);
+      background: rgba(15, 122, 255, .07);
+    }
+
+    .stage.active-cache {
+      border-color: rgba(52, 211, 153, .5);
+      box-shadow: 0 0 24px rgba(52, 211, 153, .14);
+      background: rgba(52, 211, 153, .07);
+    }
+
+    .stage.active-mongo {
+      border-color: rgba(251, 191, 36, .5);
+      box-shadow: 0 0 24px rgba(251, 191, 36, .14);
+      background: rgba(251, 191, 36, .07);
+    }
+
+    .stage.active-vectra {
+      border-color: rgba(139, 92, 246, .5);
+      box-shadow: 0 0 24px rgba(139, 92, 246, .14);
+      background: rgba(139, 92, 246, .07);
+    }
+
+    .stage.active-llm {
+      border-color: rgba(232, 64, 42, .5);
+      box-shadow: 0 0 24px rgba(232, 64, 42, .14);
+      background: rgba(232, 64, 42, .07);
+    }
+
+    .stage.done .stage-name {
+      color: #5ba3ff;
+    }
+
+    .stage.done {
+      border-color: #5ba3ff;
+    }
+
+    .stage::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.04), transparent);
+    }
+
+    .stage.scanning::after {
+      animation: scan .55s ease forwards;
+    }
+
+    @keyframes scan {
+      0% {
+        left: -60%
+      }
+
+      100% {
+        left: 110%
+      }
+    }
+
+    /* PROGRESS */
+    .progress-wrap {
+      padding: 0 1.5rem;
+      margin-top: 12px;
+    }
+
+    .progress-track {
+      height: 3px;
+      background: var(--border2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--suki), var(--vectra));
+      border-radius: 2px;
+      transition: width .5s ease;
+    }
+
+    /* PATH */
+    .path-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      padding: .75rem 1.5rem;
+      border-top: 0.5px solid var(--border);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: .04em;
+      min-height: 42px;
+    }
+
+    .ps {
+      opacity: 0;
+      transition: opacity .25s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ps.show {
+      opacity: 1;
+    }
+
+    .ps-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .ps-arr {
+      color: var(--border2);
+    }
+
+    /* BUBBLE AREA */
+    .bubble-area {
+      padding: 1.25rem 1.5rem 1.5rem;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .bubble-ph {
+      color: var(--muted);
+      font-size: 13px;
+      font-style: italic;
+      text-align: center;
+      padding: .5rem 0;
+    }
+
+    .msg {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .msg.user {
+      flex-direction: row-reverse;
+    }
+
+    .av {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+
+    .av-s {
+      background: rgba(15, 122, 255, .15);
+    }
+
+    .av-u {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .bub {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.65;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: bub-in .35s ease forwards;
+    }
+
+    @keyframes bub-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .bub-u {
+      background: rgba(15, 122, 255, .14);
+      border: 0.5px solid rgba(15, 122, 255, .25);
+      border-radius: 16px 16px 4px 16px;
+    }
+
+    .bub-s {
+      background: var(--surface2);
+      border: 0.5px solid var(--border2);
+      border-radius: 16px 16px 16px 4px;
+    }
+
+    .typing {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .typing span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--muted2);
+      animation: td 1.2s ease-in-out infinite;
+    }
+
+    .typing span:nth-child(2) {
+      animation-delay: .2s
+    }
+
+    .typing span:nth-child(3) {
+      animation-delay: .4s
+    }
+
+    @keyframes td {
+
+      0%,
+      80%,
+      100% {
+        transform: scale(1);
+        opacity: .4
+      }
+
+      40% {
+        transform: scale(1.3);
+        opacity: 1
+      }
+    }
+
+    .sbadge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .06em;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-top: 5px;
+      opacity: 0;
+      animation: bub-in .3s .2s ease forwards;
+    }
+
+    .sbadge-cache {
+      background: rgba(52, 211, 153, .1);
+      color: var(--cache);
+      border: 0.5px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .sbadge-ai {
+      background: rgba(232, 64, 42, .1);
+      color: var(--llm);
+      border: 0.5px solid rgba(232, 64, 42, .3);
+    }
+
+    .sdot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    .sdot-c {
+      background: var(--cache);
+    }
+
+    .sdot-a {
+      background: var(--llm);
+      animation: blink 1s infinite;
+    }
+
+    /* DIAGRAM */
+    .diag-section {
+      margin-top: 3rem;
+    }
+
+    .diag-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .1em;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .diag-flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .dn {
+      width: min(380px, 100%);
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .5s ease, transform .5s ease;
+    }
+
+    .dn.vis {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .dn-h {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .dn-icon {
+      font-size: 18px;
+    }
+
+    .dn-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .dn-body {
+      font-size: 12px;
+      color: var(--muted2);
+      line-height: 1.6;
+    }
+
+    .dc {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transition: opacity .5s ease .15s;
+    }
+
+    .dc.vis {
+      opacity: 1;
+    }
+
+    .dc-line {
+      width: 1px;
+      height: 28px;
+      background: var(--border2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dc-line::after {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--suki), transparent);
+      animation: fdown 2.5s ease-in-out infinite;
+    }
+
+    @keyframes fdown {
+      0% {
+        top: -100%;
+        opacity: 0
+      }
+
+      20% {
+        opacity: 1
+      }
+
+      80% {
+        opacity: 1
+      }
+
+      100% {
+        top: 100%;
+        opacity: 0
+      }
+    }
+
+    .dc-arr {
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid var(--border2);
+    }
+
+    .dc-lbl {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+      letter-spacing: .04em;
+    }
+
+    .dbranch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: min(520px, 100%);
+    }
+
+    .dbn {
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: 14px;
+      padding: 1rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .5s ease, transform .5s ease;
+    }
+
+    .dbn.vis {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .dbn-h {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .dbn-b {
+      font-size: 11px;
+      color: var(--muted2);
+      line-height: 1.55;
+    }
+
+    .c-s .dn-title,
+    .c-s .dbn-h {
+      color: var(--suki);
+    }
+
+    .c-s {
+      border-color: rgba(15, 122, 255, .2);
+    }
+
+    .c-c .dn-title,
+    .c-c .dbn-h {
+      color: var(--cache);
+    }
+
+    .c-c {
+      border-color: rgba(52, 211, 153, .2);
+    }
+
+    .c-m .dn-title,
+    .c-m .dbn-h {
+      color: var(--mongo);
+    }
+
+    .c-m {
+      border-color: rgba(251, 191, 36, .2);
+    }
+
+    .c-v .dn-title,
+    .c-v .dbn-h {
+      color: var(--vectra);
+    }
+
+    .c-v {
+      border-color: rgba(139, 92, 246, .2);
+    }
+
+    .c-l .dn-title,
+    .c-l .dbn-h {
+      color: var(--llm);
+    }
+
+    .c-l {
+      border-color: rgba(232, 64, 42, .2);
+    }
+
+    .note {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    /* MEDIA QUERIES PARA RESPONSIVIDAD (MÃ³viles y Tablets) */
+    @media (max-width: 768px) {
+      .page {
+        padding: 2rem 1rem 4rem;
+      }
+
+      .stage-row {
+        flex-direction: column;
+      }
+
+      .dbranch {
+        grid-template-columns: 1fr;
+      }
+
+      .bub {
+        max-width: 85%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .sim-row {
+        flex-direction: column;
+      }
+
+      .sim-btn {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .sim-input-area {
+        padding: 1.25rem 1rem 1rem;
+      }
+
+      .stage-track {
+        padding: 1.25rem 1rem 0;
+      }
+
+      .progress-wrap {
+        padding: 0 1rem;
+      }
+
+      .path-row {
+        padding: .75rem 1rem;
+      }
+
+      .bubble-area {
+        padding: 1rem 1rem 1.25rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <header>
+      <div class="pill">
+        <div class="pill-dot"></div>SUKIA - CÓMO FUNCIONA
+      </div>
+      <h1>La pregunta entra.<br><em>Suki piensa.</em><br>La respuesta llega.</h1>
+      <p class="sub">Prueba el simulador y observa, en tiempo real, como viaja tu consulta por todo el sistema.</p>
+    </header>
+
+    <!-- SIMULATOR -->
+    <div class="sim-wrap">
+
+      <div class="sim-input-area">
+        <div class="sim-label">ESCRIBE TU PREGUNTA</div>
+        <div class="sim-row">
+          <input class="sim-input" id="q-input" type="text" placeholder="Ej:Donde esta la cafetería?"
+            value="Donde esta la cafetería?">
+          <button class="sim-btn" id="run-btn">Preguntar</button>
+        </div>
+        <div class="suggestions">
+          <span class="sug">Donde esta la biblioteca?</span>
+          <span class="sug">Como hago mi servicio social?</span>
+          <span class="sug">Cuando es el prximo evento?</span>
+          <span class="sug">Necesito mi constancia de estudios</span>
+        </div>
+      </div>
+
+      <div class="stage-track">
+        <div class="stage-row">
+          <div class="stage full" id="st-input">
+            <span class="stage-icon"></span>
+            <div class="stage-name">Recibiendo tu pregunta</div>
+            <div class="stage-desc">Sukia escucha o lee lo que escribiste</div>
+          </div>
+        </div>
+        <div class="stage-row">
+          <div class="stage" id="st-clean">
+            <span class="stage-icon"></span>
+            <div class="stage-name">Entendiendo</div>
+            <div class="stage-desc">Corrige errores y expande sinónimos</div>
+          </div>
+          <div class="stage" id="st-cache">
+            <span class="stage-icon"></span>
+            <div class="stage-name">¿Ya lo sé?</div>
+            <div class="stage-desc">Busca si alguien pregunto esto antes</div>
+          </div>
+        </div>
+        <div class="stage-row">
+          <div class="stage" id="st-mongo">
+            <span class="stage-icon"></span>
+            <div class="stage-name">Buscando en el campus</div>
+            <div class="stage-desc">Revisa edificios, tramites y eventos</div>
+          </div>
+          <div class="stage" id="st-vectra">
+            <span class="stage-icon"></span>
+            <div class="stage-name">Buscando por significado</div>
+            <div class="stage-desc">Entiende la intención, no solo palabras</div>
+          </div>
+        </div>
+        <div class="stage-row">
+          <div class="stage full" id="st-llm">
+            <span class="stage-icon"></span>
+            <div class="stage-name">Construyendo la respuesta</div>
+            <div class="stage-desc">La IA local combina todo y redacta en lenguaje natural</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-wrap" style="margin-top:14px;">
+        <div class="progress-track">
+          <div class="progress-fill" id="prog"></div>
+        </div>
+      </div>
+
+      <div class="path-row" id="path-row">
+        <span style="color:var(--muted);font-size:10px;font-family:var(--mono);">RUTA:</span>
+        <div class="ps" id="ps1">
+          <div class="ps-dot" style="background:var(--suki)"></div>Entrada
+        </div>
+        <div class="ps ps-arr" id="psa1">-></div>
+        <div class="ps" id="ps2">
+          <div class="ps-dot" style="background:var(--suki)"></div>Limpieza
+        </div>
+        <div class="ps ps-arr" id="psa2">-></div>
+        <div class="ps" id="ps3">
+          <div class="ps-dot" style="background:var(--cache)"></div>Cache
+        </div>
+        <div class="ps ps-arr" id="psa3">-></div>
+        <div class="ps" id="ps4">
+          <div class="ps-dot" style="background:var(--mongo)"></div>Base de datos
+        </div>
+        <div class="ps ps-arr" id="psa4">-></div>
+        <div class="ps" id="ps5">
+          <div class="ps-dot" style="background:var(--vectra)"></div>Vectores
+        </div>
+        <div class="ps ps-arr" id="psa5">-></div>
+        <div class="ps" id="ps6">
+          <div class="ps-dot" style="background:var(--llm)"></div>IA
+        </div>
+        <div class="ps ps-arr" id="psa6">-></div>
+        <div class="ps" id="ps7">
+          <div class="ps-dot" style="background:var(--cache)"></div>Respuesta
+        </div>
+      </div>
+
+      <div class="bubble-area" id="bubble-area">
+        <div class="bubble-ph" id="bph">La respuesta de Suki aparecerá aquí.</div>
+      </div>
+
+    </div>
+
+    <!-- DIAGRAM -->
+    <div class="diag-section">
+      <div class="diag-title">ARQUITECTURA COMPLETA DEL SISTEMA</div>
+      <div class="diag-flow">
+
+        <div class="dn c-s" id="dn1">
+          <div class="dn-h"><span class="dn-icon"></span><span class="dn-title">Estudiante escribe o habla</span>
+          </div>
+          <div class="dn-body">La interfaz web captura el texto. Si es por voz, la convierte a texto primero con Web
+            Speech API, luego lo envía al servidor.</div>
+        </div>
+        <div class="dc" id="dc1">
+          <div class="dc-line"></div>
+          <div class="dc-arr"></div>
+          <div class="dc-lbl">texto de la consulta</div>
+        </div>
+
+        <div class="dn c-s" id="dn2">
+          <div class="dn-h"><span class="dn-icon"></span><span class="dn-title">El servidor entiende la
+              intención</span></div>
+          <div class="dn-body">Corrige errores de escritura ("bobloteca" → "biblioteca"), elimina tildes para comparar
+            mejor y expande sinónimos para que "inscripcion" también busque "matricula".</div>
+        </div>
+        <div class="dc" id="dc2">
+          <div class="dc-line"></div>
+          <div class="dc-arr"></div>
+          <div class="dc-lbl">consulta limpia</div>
+        </div>
+
+        <div class="dn c-c" id="dn3">
+          <div class="dn-h"><span class="dn-icon"></span><span class="dn-title">¿Alguien ya preguntó esto?</span>
+          </div>
+          <div class="dn-body">Sukia guarda en memoria las últimas respuestas por 5 minutos. Si la misma pregunta ya
+            fue
+            respondida, la entrega al instante sin buscar nada. Ahorra tiempo y recursos.</div>
+        </div>
+        <div class="dc" id="dc3">
+          <div class="dc-line"></div>
+          <div class="dc-arr"></div>
+          <div class="dc-lbl">búsqueda doble (en paralelo)</div>
+        </div>
+
+        <div class="dbranch">
+          <div class="dbn c-m" id="dn4a">
+            <div class="dbn-h"><span></span><span>Base de datos del campus</span></div>
+            <div class="dbn-b">Busca en edificios, trámites y eventos al mismo tiempo. Funciona aunque la palabra tenga
+              acento o no "cafeteria" encuentra "Cafeteria".</div>
+          </div>
+          <div class="dbn c-v" id="dn4b">
+            <div class="dbn-h"><span></span><span>Búsqueda por significado</span></div>
+            <div class="dbn-b">Convierte la pregunta en un mapa matemático y busca lo más parecido. "¿Dónde cursan
+              los
+              de sistemas?" encuentra el edificio sin mencionar su nombre exacto.</div>
+          </div>
+        </div>
+        <div class="dc" id="dc4">
+          <div class="dc-line"></div>
+          <div class="dc-arr"></div>
+          <div class="dc-lbl">resultados combinados</div>
+        </div>
+
+        <div class="dn c-l" id="dn5">
+          <div class="dn-h"><span class="dn-icon"></span><span class="dn-title">Llama 3 redacta la respuesta</span>
+          </div>
+          <div class="dn-body">La IA corre dentro de la computadora del ITM, sin internet. Toma todo lo encontrado y lo
+            convierte en una respuesta clara, en español mexicano, como si fuera una persona real explicando.</div>
+        </div>
+        <div class="dc" id="dc5">
+          <div class="dc-line"></div>
+          <div class="dc-arr"></div>
+          <div class="dc-lbl">texto final</div>
+        </div>
+
+        <div class="dn c-s" id="dn6">
+          <div class="dn-h"><span class="dn-icon"></span><span class="dn-title">Suki habla y el avatar se
+              anima</span></div>
+          <div class="dn-body">El texto se convierte a voz en español mexicano. El avatar 3D mueve la boca sincronizado
+            con el audio. La respuesta se guarda en caché para la próxima vez que alguien pregunte lo mismo.</div>
+        </div>
+
+        <p class="note">Todo el proceso ocurre localmente ningún dato del estudiante sale del servidor del ITM.</p>
+      </div>
+    </div>
+
+  </div>
+  <script>
+    document.querySelectorAll('.sug').forEach(s => {
+      s.addEventListener('click', () => { document.getElementById('q-input').value = s.textContent; });
+    });
+
+    const sp = id => { const e = document.getElementById(id); if (e) e.classList.add('show'); };
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+
+    function activate(id, c) {
+      clearActive();
+      const e = document.getElementById(id);
+      if (!e) return;
+      e.classList.add('active-' + c, 'scanning');
+      e.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => e.classList.remove('scanning'), 600);
+    }
+    function activateBoth(a, ca, b, cb) {
+      clearActive();
+      let firstEl = null;
+      [a, b].forEach((id, i) => {
+        const e = document.getElementById(id);
+        if (!e) return;
+        if (i === 0) firstEl = e;
+        e.classList.add('active-' + [ca, cb][i], 'scanning');
+        setTimeout(() => e.classList.remove('scanning'), 600);
+      });
+      if (firstEl) firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function done(id) {
+      const e = document.getElementById(id);
+      if (e) { e.classList.remove('active-suki', 'active-cache', 'active-mongo', 'active-vectra', 'active-llm'); e.classList.add('done'); }
+    }
+    function clearActive() {
+      ['st-input', 'st-clean', 'st-cache', 'st-mongo', 'st-vectra', 'st-llm'].forEach(id => {
+        document.getElementById(id).classList.remove('active-suki', 'active-cache', 'active-mongo', 'active-vectra', 'active-llm');
+      });
+    }
+    function resetAll() {
+      ['st-input', 'st-clean', 'st-cache', 'st-mongo', 'st-vectra', 'st-llm'].forEach(id => {
+        document.getElementById(id).classList.remove('active-suki', 'active-cache', 'active-mongo', 'active-vectra', 'active-llm', 'done');
+      });
+      ['ps1', 'psa1', 'ps2', 'psa2', 'ps3', 'psa3', 'ps4', 'psa4', 'ps5', 'psa5', 'ps6', 'psa6', 'ps7'].forEach(id => {
+        const e = document.getElementById(id); if (e) e.classList.remove('show');
+      });
+      document.getElementById('prog').style.width = '0%';
+      document.getElementById('bubble-area').innerHTML = '<div class="bubble-ph" id="bph">La respuesta de Suki aparecerá aquí</div>';
+    }
+
+    const responses = {
+      cafeteria: { c: "¡Claro! La cafeteria principal está en el Edificio Central, planta baja, junto al área de servicios estudiantiles. Abre de lunes a viernes de 7:30 am a 7:00 pm.", f: "La cafetería del ITM está en el Edificio C, planta baja. También hay una sucursal cerca de Ingeniería. Ambas abren a las 7:30 am. ¿Necesitas algo más?" },
+      biblioteca: { c: "La biblioteca está en el Edificio de Servicios, abierta lunes a viernes 8:00 am – 8:00 pm y sábados 9:00 am – 2:00 pm. Acceso con credencial vigente.", f: "La biblioteca central está en el Edificio B-1. Tiene sala de estudio, zona de cómputo y acceso a bases de datos académicas. Necesitas credencial escolar." },
+      servicio: { c: "Para servicio social necesitas: carta del asesor, formato SS-01, constancia de estudios y mínimo 480 horas. El trámite es en la Subdirección Académica.", f: "El servicio social requiere 70% de créditos cubiertos. Documentos: solicitud oficial, carta de aceptación de la empresa y credencial. Pasa al Departamento de Gestión Tecnológica." },
+      evento: { c: "¡Esta semana hay eventos! Taller de Emprendimiento el jueves a las 10:00 am en el Auditorio Principal. Conferencia de IA el viernes. ¡Apúntalos!", f: "Próximos eventos del ITM: Semana Cultural (20–24 mayo), Feria InnovaTecNM (28 mayo) y Torneo Deportivo (1 junio). ¡No te los pierdas!" },
+      constancia: { c: "La constancia de estudios se tramita en Ventanilla Única. Necesitas credencial vigente y pago de $50 MXN. Entrega en 24 hrs hábiles.", f: "La constancia se tramita en Servicios Escolares, Edificio de Administración, 9:00 am – 2:00 pm. Si llegas antes de las 11:00 am la entregan el mismo día." },
+      default: { c: "He encontrado esa información en mi base de datos. ¿Te puedo ayudar con algo más del campus?", f: "Basándome en la información del campus, puedo orientarte. Para más detalles te recomiendo pasar al módulo de información en la planta baja del edificio principal." }
+    };
+
+    function getResp(q, t) {
+      const lq = q.toLowerCase();
+      if (lq.includes('cafeter')) return responses.cafeteria[t];
+      if (lq.includes('bibliote')) return responses.biblioteca[t];
+      if (lq.includes('servicio')) return responses.servicio[t];
+      if (lq.includes('evento') || lq.includes('actividad')) return responses.evento[t];
+      if (lq.includes('constancia') || lq.includes('certificado')) return responses.constancia[t];
+      return responses.default[t];
+    }
+
+    function addUserMsg(txt) {
+      const ba = document.getElementById('bubble-area');
+      const ph = document.getElementById('bph'); if (ph) ph.remove();
+      const d = document.createElement('div');
+      d.className = 'msg user';
+      d.innerHTML = ` <div class="bub bub-u">${txt}</div>`;
+      ba.appendChild(d); ba.scrollTop = ba.scrollHeight;
+    }
+    function addTypingMsg() {
+      const ba = document.getElementById('bubble-area');
+      const d = document.createElement('div'); d.className = 'msg'; d.id = 'typing-msg';
+      d.innerHTML = `<img src="icons/icon-192.png" class="av av-s"><div class="bub bub-s" style="opacity:1;transform:none;"><div class="typing"><span></span><span></span><span></span></div></div>`;
+      ba.appendChild(d); ba.scrollTop = ba.scrollHeight;
+      d.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function removeTyping() { const t = document.getElementById('typing-msg'); if (t) t.remove(); }
+    function addSukiMsg(txt, type) {
+      removeTyping();
+      const ba = document.getElementById('bubble-area');
+      const badge = type === 'cache'
+        ? `<div class="sbadge sbadge-cache"><div class="sdot sdot-c"></div>RESPUESTA INSTANTÁNEA · CACHÉ</div>`
+        : `<div class="sbadge sbadge-ai"><div class="sdot sdot-a"></div>GENERADA POR IA LOCAL · LLAMA 3</div>`;
+      const d = document.createElement('div'); d.className = 'msg';
+      d.innerHTML = `<img src="icons/icon-192.png" class="av av-s"><div><div class="bub bub-s">${txt}</div>${badge}</div>`;
+      ba.appendChild(d); ba.scrollTop = ba.scrollHeight;
+      d.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    document.getElementById('run-btn').addEventListener('click', async () => {
+      const q = document.getElementById('q-input').value.trim();
+      if (!q) return;
+      const btn = document.getElementById('run-btn');
+      btn.disabled = true; btn.textContent = 'Procesando';
+      resetAll();
+      const isCache = Math.random() < 0.3;
+      addUserMsg(q);
+
+      activate('st-input', 'suki');
+      document.getElementById('prog').style.width = '12%';
+      sp('ps1'); await wait(1000);
+      done('st-input');
+
+      activate('st-clean', 'suki');
+      document.getElementById('prog').style.width = '28%';
+      sp('psa1'); sp('ps2'); await wait(2000);
+      done('st-clean');
+
+      activate('st-cache', 'cache');
+      document.getElementById('prog').style.width = '42%';
+      sp('psa2'); sp('ps3'); await wait(2000);
+
+      if (isCache) {
+        done('st-cache');
+        document.getElementById('prog').style.width = '100%';
+        ['psa3', 'ps4', 'psa4', 'ps5', 'psa5', 'ps6', 'psa6', 'ps7'].forEach(sp);
+        addTypingMsg(); await wait(2000);
+        addSukiMsg(getResp(q, 'c'), 'cache');
+        btn.disabled = false; btn.textContent = 'Preguntar';
+        return;
+      }
+
+      done('st-cache'); sp('psa3');
+      activateBoth('st-mongo', 'mongo', 'st-vectra', 'vectra');
+      document.getElementById('prog').style.width = '62%';
+      sp('ps4'); sp('psa4'); sp('ps5'); await wait(2000);
+      done('st-mongo'); done('st-vectra');
+
+      activate('st-llm', 'llm');
+      document.getElementById('prog').style.width = '82%';
+      sp('psa5'); sp('ps6');
+      addTypingMsg(); await wait(2000);
+      done('st-llm');
+      document.getElementById('prog').style.width = '100%';
+      sp('psa6'); sp('ps7');
+      addSukiMsg(getResp(q, 'f'), 'ai');
+      btn.disabled = false; btn.textContent = 'Preguntar';
+    });
+
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => { if (e.isIntersecting) setTimeout(() => e.target.classList.add('vis'), i * 90); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.dn,.dc,.dbn').forEach(el => obs.observe(el));
+  </script>
+</body>
+
+</html>
