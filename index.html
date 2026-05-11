@@ -2,6 +2,16 @@
 <html lang="es">
 
 <head>
+  <!-- Favicon para pestañas (32px y 16px) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+
+  <!-- Apple / iPhone (usa el de 192px) -->
+  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sukia — Asistente Estudiantil con IA</title>
@@ -9,6 +19,13 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap"
     rel="stylesheet">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
+
+
   <style>
     :root {
       --ink: #0a0a0f;
@@ -46,31 +63,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── CURSOR ── */
-    body {
-      cursor: none;
-    }
 
-    #cursor {
-      width: 10px;
-      height: 10px;
-      background: var(--sky);
-      border-radius: 50%;
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      top: 0;
-      left: 0;
-      transform: translate(-50%, -50%);
-      transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
-      mix-blend-mode: multiply;
-    }
-
-    #cursor.grow {
-      width: 48px;
-      height: 48px;
-      opacity: 0.4;
-    }
 
     /* ── NAV ── */
     nav {
@@ -351,7 +344,7 @@
       gap: 1.5rem;
     }
 
-    .stat-bar-item {}
+
 
     .stat-bar-top {
       display: flex;
@@ -1002,8 +995,6 @@
 
 <body>
 
-  <div id="cursor"></div>
-
   <nav>
     <div class="nav-logo">SUKIA<span>.</span></div>
     <div class="nav-pill">InnovaTecNM 2026 · Folio 66389-17</div>
@@ -1021,12 +1012,22 @@
         Sukia es un asistente virtual con IA local que conoce cada edificio, trámite y evento de tu escuela. Sin filas,
         sin desinformación, sin instalar nada.
       </p>
-      <a class="hero-cta" href="#solucion">
-        Ver el proyecto
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M5 12h14M12 5l7 7-7 7" />
-        </svg>
-      </a>
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a class="hero-cta" href="#solucion">
+          Ver el proyecto
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+        <a class="hero-cta" href="func_sukia.html"
+          style="background: rgba(255, 255, 255, 0.05); color: var(--text-main); border: 1px solid rgba(255, 255, 255, 0.1);">
+          Cómo funciona
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+
       <div class="hero-stat-row">
         <div class="hero-stat">
           <h3>76</h3>
@@ -1368,17 +1369,6 @@
   </footer>
 
   <script>
-    // Cursor
-    const cur = document.getElementById('cursor');
-    document.addEventListener('mousemove', e => {
-      cur.style.left = e.clientX + 'px';
-      cur.style.top = e.clientY + 'px';
-    });
-    document.querySelectorAll('a, button, .feat-card, .tech-card, .team-card').forEach(el => {
-      el.addEventListener('mouseenter', () => cur.classList.add('grow'));
-      el.addEventListener('mouseleave', () => cur.classList.remove('grow'));
-    });
-
     // Scroll reveal
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
