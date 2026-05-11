@@ -1109,7 +1109,7 @@
         ? `<div class="sbadge sbadge-cache"><div class="sdot sdot-c"></div>RESPUESTA INSTANTÁNEA · CACHÉ</div>`
         : `<div class="sbadge sbadge-ai"><div class="sdot sdot-a"></div>GENERADA POR IA LOCAL · LLAMA 3</div>`;
       const d = document.createElement('div'); d.className = 'msg';
-      d.innerHTML = `<img src="icons/icon-192.png" class="av av-s"><div><div class="bub bub-s">${txt}</div>${badge}</div>`;
+      d.innerHTML = `<img src="icon-192.png" class="av av-s"><div><div class="bub bub-s">${txt}</div>${badge}</div>`;
       ba.appendChild(d); ba.scrollTop = ba.scrollHeight;
       d.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
